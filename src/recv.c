@@ -80,7 +80,12 @@ void handle_packet(uint32_t buflen, const u_char *bytes,
 
 	// IPv6
 	int is_repeat;
-	if (ipv6) {
+    if (ipv6 ||
+        	strcmp(zconf.probe_module->name,"gre_spoofing") == 0 ||
+            strcmp(zconf.probe_module->name,"ipip_spoofing") == 0 ||
+            strcmp(zconf.probe_module->name,"ipip_subnet") == 0 ||
+            strcmp(zconf.probe_module->name,"gre_subnet") == 0) {
+
 		is_repeat = 0;
 	} else {
 		// woo! We've validated that the packet is a response to our scan
@@ -174,7 +179,7 @@ cleanup:
 int recv_run(pthread_mutex_t *recv_ready_mutex)
 {
 	// IPv6
-	if (zconf.ipv6_target_filename) {
+	if (zconf.ipv6_target_filename || zconf.ipv6_source_ip || zconf.external_address_v6 || zconf.spoofing_address_v6) {
 		ipv6 = 1;
 	}
 

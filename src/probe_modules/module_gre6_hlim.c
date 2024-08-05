@@ -30,43 +30,67 @@
 #define ICMP_SMALLEST_SIZE 5
 #define ICMP_TIMXCEED_UNREACH_HEADER_SIZE 8
 
-probe_module_t module_icmp6_echoscan;
+probe_module_t module_gre6_hlim;
+typedef struct __attribute__((packed)) {
+	uint16_t gre_bitfield;
+	uint16_t protocol;
+	//uint16_t cksum;
+} gre_header_t;
 
-int icmp6_echo_global_initialize(struct state_conf *conf)
+static gre_header_t gre_header_default;
+int gre6_hlim_global_initialize(struct state_conf *conf)
 {
+	memset(&gre_header_default, 0, sizeof(gre_header_default));
 	// Only look at received packets destined to the specified scanning address (useful for parallel zmap scans)
-	if (asprintf((char ** restrict) &module_icmp6_echoscan.pcap_filter, "%s && ip6 dst host %s", module_icmp6_echoscan.pcap_filter, conf->ipv6_source_ip) == -1) {
+	if (asprintf((char ** restrict) &module_gre6_hlim.pcap_filter, "%s && ip6 dst host %s", module_gre6_hlim.pcap_filter, conf->ipv6_source_ip) == -1) {
 		return 1;
 	}
 
 	return EXIT_SUCCESS;
 }
 
-static int icmp6_echo_init_perthread(void* buf, macaddr_t *src,
-		macaddr_t *gw, __attribute__((unused)) port_h_t dst_port,
-		__attribute__((unused)) void **arg_ptr)
+static int gre6_hlim_init_perthread(void *buf, macaddr_t *src,
+					macaddr_t *gw,
+					__attribute__((unused))
+					port_h_t dst_port,
+					__attribute__((unused)) void **arg_ptr)
 {
 	memset(buf, 0, MAX_PACKET_SIZE);
 
-	struct ether_header *eth_header = (struct ether_header *) buf;
+	struct ether_header *eth_header = (struct ether_header *)buf;
 	make_eth_header_ethertype(eth_header, src, gw, ETHERTYPE_IPV6);
 
-    struct ip6_hdr *ip6_header = (struct ip6_hdr *) (&eth_header[1]);
+	struct ip6_hdr *ip6_header = (struct ip6_hdr *)(&eth_header[1]);
 	// ICMPv6 header plus 8 bytes of data (validation)
-	uint16_t payload_len = sizeof(struct icmp6_hdr) + 2*sizeof(uint32_t);
-    make_ip6_header(ip6_header, IPPROTO_ICMPV6, payload_len);
+	uint16_t payload_len = sizeof(gre_header_t) + sizeof(struct ip6_hdr) +
+			       sizeof(struct icmp6_hdr) + 2*sizeof(uint32_t);
+	make_ip6_header(ip6_header, IPPROTO_GRE, payload_len);
 
-	struct icmp6_hdr *icmp6_header = (struct icmp6_hdr*)(&ip6_header[1]);
-	make_icmp6_header(icmp6_header,ICMP6_ECHO_REQUEST);
+	gre_header_t *gre_header = (gre_header_t *)(&ip6_header[1]);
+	memcpy(gre_header, &gre_header_default, sizeof(gre_header_default));
+	gre_header->protocol = htons(ETHERTYPE_IPV6);
+
+	struct ip6_hdr *ip6_header2 = (struct ip6_hdr *)(&gre_header[1]);
+	// ICMPv6 header plus 8 bytes of data (validation)
+	payload_len =
+	    sizeof(struct icmp6_hdr) + 2*sizeof(uint32_t);
+	make_ip6_header(ip6_header2, IPPROTO_ICMPV6, payload_len);
+
+	struct icmp6_hdr *icmp6_header = (struct icmp6_hdr *)(&ip6_header2[1]);
+	make_icmp6_header(icmp6_header, ICMP6_ECHO_REPLY);
 
 	return EXIT_SUCCESS;
 }
 
-static int icmp6_echo_make_packet(void *buf, size_t *buf_len, UNUSED ipaddr_n_t src_ip,  UNUSED ipaddr_n_t dst_ip, uint8_t ttl, uint32_t *validation, UNUSED int probe_num, UNUSED void *arg)
+static int gre6_hlim_make_packet(void *buf, size_t *buf_len, UNUSED ipaddr_n_t src_ip,  UNUSED ipaddr_n_t dst_ip, uint8_t ttl, uint32_t *validation, UNUSED int probe_num, UNUSED void *arg)
 {
 	struct ether_header *eth_header = (struct ether_header *) buf;
 	struct ip6_hdr *ip6_header = (struct ip6_hdr *)(&eth_header[1]);
-	struct icmp6_hdr *icmp6_header = (struct icmp6_hdr*)(&ip6_header[1]);
+	gre_header_t *gre_header = (gre_header_t *)(&ip6_header[1]);
+	struct ip6_hdr *ip6_header2 = (struct ip6_hdr *)(&gre_header[1]);
+	struct icmp6_hdr *icmp6_header = (struct icmp6_hdr*)(&ip6_header2[1]);
+    char *payload = (char *)(&icmp6_header[1]);
+
 	uint16_t icmp_idnum = validation[2] & 0xFFFF;
 
 	// Include validation in ICMPv6 payload data
@@ -75,21 +99,33 @@ static int icmp6_echo_make_packet(void *buf, size_t *buf_len, UNUSED ipaddr_n_t 
 
 	ip6_header->ip6_src = ((struct in6_addr *) arg)[0];
 	ip6_header->ip6_dst = ((struct in6_addr *) arg)[1];
-	ip6_header->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
 
-	icmp6_header->icmp6_id= icmp_idnum;
+	struct in6_addr ip6_sub = alter_ipv6(ip6_header->ip6_dst);
+
+    ip6_header2->ip6_src = ip6_header->ip6_src;
+    ip6_header2->ip6_dst = ip6_sub;
+
+    ip6_header->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
+	ip6_header2->ip6_ctlun.ip6_un1.ip6_un1_hlim = 0;
+
+	icmp6_header->icmp6_id = icmp_idnum;
 	icmp6_header->icmp6_cksum = 0;
 
-	icmp6_header->icmp6_cksum = ipv6_payload_checksum(sizeof(struct icmp6_hdr) + 2*sizeof(uint32_t), &ip6_header->ip6_src, &ip6_header->ip6_dst, (unsigned short *) icmp6_header, IPPROTO_ICMPV6);
+	icmp6_header->icmp6_cksum = ipv6_payload_checksum(
+	    sizeof(struct icmp6_hdr) + 2*sizeof(uint32_t),
+	    &ip6_header2->ip6_src, &ip6_header2->ip6_dst,
+	    (unsigned short *)icmp6_header, IPPROTO_ICMPV6);
 
-    // 8 bytes of data are used in ICMPv6 for validation
-    *buf_len = sizeof(struct ether_header) + sizeof(struct ip6_hdr) + ICMP_MINLEN + 2*sizeof(uint32_t);
+	// 8 bytes of data are used in ICMPv6 for validation
+
+	*buf_len = sizeof(struct ether_header) + 2 * sizeof(struct ip6_hdr) +
+		   sizeof(gre_header_t) + ICMP_MINLEN +2*sizeof(uint32_t);
 
 
 	return EXIT_SUCCESS;
 }
 
-static void icmp6_echo_print_packet(FILE *fp, void* packet)
+static void gre6_hlim_print_packet(FILE *fp, void* packet)
 {
 	struct ether_header *ethh = (struct ether_header *) packet;
 	struct ip6_hdr *iph = (struct ip6_hdr *) &ethh[1];
@@ -109,56 +145,33 @@ static void icmp6_echo_print_packet(FILE *fp, void* packet)
 }
 
 
-static int icmp6_validate_packet(const struct ip *ip_hdr,
+static int gre6_hlim_validate_packet(const struct ip *ip_hdr,
 		uint32_t len, __attribute__((unused)) uint32_t *src_ip, uint32_t *validation)
 {
     struct ip6_hdr *ip6_hdr = (struct ip6_hdr*) ip_hdr;
 
 	if (ip6_hdr->ip6_nxt != IPPROTO_ICMPV6) {
-		return 0;
-	}
-
-    // IPv6 header is fixed length at 40 bytes + ICMPv6 header + 8 bytes of ICMPv6 data
-	if ( ( sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr) + 2 * sizeof(uint32_t)) > len) {
-		// buffer not large enough to contain expected icmp header
-		return 0;
+		return PACKET_INVALID;
 	}
 
     // offset iphdr by ip header length of 40 bytes to shift pointer to ICMP6 header
 	struct icmp6_hdr *icmp6_h = (struct icmp6_hdr *) (&ip6_hdr[1]);
 
-	// ICMP validation is tricky: for some packet types, we must look inside
-	// the payload
-	if (icmp6_h->icmp6_type == ICMP6_TIME_EXCEEDED || icmp6_h->icmp6_type == ICMP6_DST_UNREACH
-        || icmp6_h->icmp6_type == ICMP6_PACKET_TOO_BIG || icmp6_h->icmp6_type == ICMP6_PARAM_PROB) {
-
-        // IP6 + ICMP6 headers + inner headers + 8 byte payload (validation)
-        if (2*sizeof(struct ip6_hdr) + 2*sizeof(struct icmp6_hdr) + 2*sizeof(uint32_t) > len) {
-			return 0;
-		}
-
-		// Use inner headers for validation
-		ip6_hdr = (struct ip6_hdr *) &icmp6_h[1];
-		icmp6_h = (struct icmp6_hdr *) &ip6_hdr[1];
-
-		// Send original src and dst IP as data in ICMPv6 payload and regenerate the validation here
-        validate_gen_ipv6(&ip6_hdr->ip6_dst, &ip6_hdr->ip6_src,
-			     (uint8_t *) validation);
-	}
-	// validate icmp id
-	if (icmp6_h->icmp6_id != (validation[2] & 0xFFFF)) {
-		return 0;
+	if(icmp6_h->icmp6_type != ICMP6_TIME_EXCEEDED){
+		return PACKET_INVALID;
 	}
 
-	// Validate ICMPv6 data
-	if (icmp6_h->icmp6_data32[1] != validation[0] || icmp6_h->icmp6_data32[2] != validation[1]) {
-		return 0;
-	}
+    struct ip6_hdr *ip6_hdr2 = (struct ip6_hdr*) (&icmp6_h[1]);
 
-	return 1;
+    if(ip6_hdr2->ip6_nxt != IPPROTO_ICMPV6){
+        return PACKET_INVALID;
+    }
+
+
+	return PACKET_VALID;
 }
 
-static void icmp6_echo_process_packet(const u_char *packet,
+static void gre6_hlim_process_packet(const u_char *packet,
 		__attribute__((unused)) uint32_t len, fieldset_t *fs,
 		__attribute__((unused)) uint32_t *validation)
 {
@@ -168,9 +181,9 @@ static void icmp6_echo_process_packet(const u_char *packet,
 	fs_add_uint64(fs, "code", icmp6_hdr->icmp6_code);
 	fs_add_uint64(fs, "icmp-id", ntohs(icmp6_hdr->icmp6_id));
 	fs_add_uint64(fs, "seq", ntohs(icmp6_hdr->icmp6_seq));
-        fs_add_string(fs, "outersaddr", make_ipv6_str(&(ip6_hdr->ip6_src)), 1);
-	if (icmp6_hdr->icmp6_type == ICMP6_ECHO_REPLY) {
-		fs_add_string(fs, "classification", (char*) "echoreply", 0);
+    fs_add_string(fs, "outersaddr", make_ipv6_str(&(ip6_hdr->ip6_src)), 1);
+	if (icmp6_hdr->icmp6_type == ICMP6_TIME_EXCEEDED) {
+		fs_add_string(fs, "classification", (char*) "timxceed", 0);
 		fs_add_uint64(fs, "success", 1);
 	} else {
 		// Use inner IP header values for unsuccessful ICMP replies
@@ -216,8 +229,8 @@ static void icmp6_echo_process_packet(const u_char *packet,
 			case ICMP6_PARAM_PROB:
 				fs_add_string(fs, "classification", (char*) "paramprob", 0);
 				break;
-			case ICMP6_TIME_EXCEEDED:
-				fs_add_string(fs, "classification", (char*) "timxceed", 0);
+			case ICMP6_ECHO_REPLY:
+				fs_add_string(fs, "classification", (char*) "echoreply", 0);
 				break;
 			default:
 				fs_add_string(fs, "classification", (char*) "other", 0);
@@ -238,18 +251,18 @@ static fielddef_t fields[] = {
 };
 
 
-probe_module_t module_icmp6_echoscan = {
-	.name = "icmp6_echoscan",
+probe_module_t module_gre6_hlim = {
+	.name = "gre6_hlim",
 	.max_packet_length = 70, // 62, // ICMPv4: 64 bit --> Why 62? ICMPv6 also 64 bit --> Leave 64
 	.pcap_filter = "icmp6 && (ip6[40] == 129 || ip6[40] == 3 || ip6[40] == 1 || ip6[40] == 2 || ip6[40] == 4)", // and icmp6[0]=!8",
 	.pcap_snaplen =  118, // 14 ethernet header + 40 IPv6 header + 8 ICMPv6 header + 40 inner IPv6 header + 8 inner ICMPv6 header + 8 payload
 	.port_args = 0,
-	.global_initialize = &icmp6_echo_global_initialize,
-	.thread_initialize = &icmp6_echo_init_perthread,
-	.make_packet = &icmp6_echo_make_packet,
-	.print_packet = &icmp6_echo_print_packet,
-	.process_packet = &icmp6_echo_process_packet,
-	.validate_packet = &icmp6_validate_packet,
+	.global_initialize = &gre6_hlim_global_initialize,
+	.thread_initialize = &gre6_hlim_init_perthread,
+	.make_packet = &gre6_hlim_make_packet,
+	.print_packet = &gre6_hlim_print_packet,
+	.process_packet = &gre6_hlim_process_packet,
+	.validate_packet = &gre6_hlim_validate_packet,
 	.close = NULL,
 	.fields = fields,
 	.numfields = 7};

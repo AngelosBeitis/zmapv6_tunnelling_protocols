@@ -10,6 +10,34 @@ include_directories(
 set(EXTRA_PROBE_MODULES
     probe_modules/module_quic_initial.c
     probe_modules/module_ipv6_quic_initial.c
+    probe_modules/module_ipip.c
+    probe_modules/module_ipip_echo.c
+    probe_modules/module_ipip_subnet.c
+    probe_modules/module_ipip_spoofing.c
+    probe_modules/module_gre.c
+    probe_modules/module_gre_ttl.c
+    probe_modules/module_gre_spoofing.c
+    probe_modules/module_gue.c
+    probe_modules/module_gre_echo.c
+    probe_modules/module_gre_subnet.c
+    probe_modules/module_6in4.c
+    probe_modules/module_6in4_ttl.c
+    probe_modules/module_6in4_6to4.c
+    probe_modules/module_6in4_mapped.c
+    probe_modules/module_4in6_spoofing.c
+    probe_modules/module_4in6_ttl.c
+    probe_modules/module_6in4.c
+    probe_modules/module_ip6ip6.c
+    probe_modules/module_ip6ip6_echo.c
+    probe_modules/module_ip6ip6_subnet.c
+    probe_modules/module_ip6ip6_spoofing.c
+    probe_modules/module_ip6ip6_hlim.c
+    probe_modules/module_gre6.c
+    probe_modules/module_gre6_icmp.c
+    probe_modules/module_gre6_spoofing.c
+    probe_modules/module_gre6_hlim.c
+    probe_modules/module_gre6_subnet.c
+    probe_modules/module_ipip_ttl.c
 )
 
 # ADD YOUR OUTPUT MODULE HERE

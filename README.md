@@ -112,6 +112,143 @@ zmap \
 * `--gateway-mac`: optional MAC address, may be necessary if scanning node has multiple interfaces and you are using a non-default interface
 * `$gatewaymac`: MAC address of the specified interface
 
+Tunnelling Protocol Modules
+-----------------------
+
+We added support for the identification of vulnerable tunnelling protocols. The modules are the following:
+
+IPIP
+-----------------------
+
+* IPIP: `ipip` 
+```bash
+zmap -M ipip --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR 
+```
+* IPIP Echo: `ipip_echo`
+```bash
+zmap -M ipip_echo --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR
+```
+* IPIP Subnet: `ipip_subnet`
+```bash
+zmap -M ipip_subnet --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR -f actual_src
+```
+* IPIP Spoofing: `ipip_spoofing`
+```bash
+zmap -M ipip_spoofing --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $SPOOFED_ADDR -f actual_src
+```
+* IPIP TTL Expired: `ipip_ttl`
+```bash
+zmap -M ipip_ttl --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $RANDOM_IPV4
+```
+GRE
+-----------------------
+
+* GRE: `gre`
+```bash
+zmap -M gre --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR 
+```
+* GRE Echo: `gre_echo`
+```bash
+zmap -M gre_echo --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR
+```
+* GRE Subnet: `gre_subnet`
+```bash
+zmap -M gre_subnet --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR -f actual_src
+```
+* GRE Spoofing: `gre_spoofing`
+```bash
+zmap -M gre_spoofing --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $SPOOFED_ADDR -f actual_src
+```
+* GRE TTL Expired: `gre_ttl`
+```bash
+zmap -M gre_ttl --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $RANDOM_IPV4
+```
+GUE
+-----------------------
+
+* GUE: `gue`
+```bash
+zmap -M gue -p 6080 --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR 
+```
+
+6in4
+-----------------------
+
+* 6in4: `6in4`
+```bash
+sudo zmap -M 6in4 --external-ipv6-address 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --spoofing-address-v6 2600:1f18:2869:9b00:bec4:: -o output.csv -f actual_src,saddr
+```
+* 6in4 6to4: `6in4_6to4`
+```bash
+sudo zmap -M 6in4_6to4 --external-ipv6-address 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce -o output.csv -f actual_src,saddr
+```
+* 6in4 Mapped: `6in4_mapped`
+```bash
+sudo zmap -M 6in4_mapped --external-ipv6-address 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce -o output.csv -f actual_src,saddr
+```
+* 6in4 TTL Expired: `6in4_ttl`
+```bash
+sudo zmap -M 6in4_ttl --external-ipv6-address 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce -o output.csv -f actual_src,saddr
+```
+GRE6
+-----------------------
+
+* GRE6: `gre6`
+```bash
+sudo zmap -M gre6 --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt
+```
+* GRE6 Echo: `gre6_icmp`
+```bash
+sudo zmap -M gre6_icmp --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 2600:1f18:2869:9b00:bec4::
+```
+* GRE6 Subnet: `gre6_subnet`
+```bash
+sudo zmap -M gre6_subnet --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt
+```
+* GRE6 Spoofing: `gre6_spoofing`
+```bash
+sudo zmap -M gre6_spoofing --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 2600:1f18:2869:9b00:bec4::
+```
+* GRE6 HLIM Expired: `gre6_hlim`
+```bash
+sudo zmap -M gre6_hlim --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 2600:1f18:2869:9b00:bec4::
+```
+
+IP6IP6
+-----------------------
+
+* IP6IP6: `ip6ip6`
+```bash
+sudo zmap -M ip6ip6 --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt
+```
+* IP6IP6 Echo: `ip6ip6_icmp`
+```bash
+sudo zmap -M ip6ip6_icmp --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 2600:1f18:2869:9b00:bec4::
+```
+* IP6IP6 Subnet: `ip6ip6_subnet`
+```bash
+sudo zmap -M ip6ip6_subnet --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt -f saddr
+```
+* IP6IP6 Spoofing: `ip6ip6_spoofing`
+```bash
+sudo zmap -M ip6ip6_spoofing --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 2600:1f18:2869:9b00:bec4:: -f saddr
+```
+* IP6IP6 HLIM Expired: `ip6ip6_hlim`
+```bash
+sudo zmap -M ip6ip6_hlim --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 2600:1f18:2869:9b00:bec4::
+```
+
+4in6
+-----------------------
+
+* 4in6 Spoofing: `4in6_spoofing`
+```bash
+sudo zmap -M 4in6_spoofing --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 3.90.110.118 --external-ipv4-address 54.210.56.75
+```
+* 4in6 TTL Expired: `4in6_ttl`
+```bash
+sudo zmap -M 4in6_ttl --ipv6-source-ip 2600:1f18:2869:9b00:bec4:73f4:9a4e:18ce --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 3.90.110.118 --external-ipv4-address 54.210.56.75
+```
 License and Copyright
 ---------------------
 

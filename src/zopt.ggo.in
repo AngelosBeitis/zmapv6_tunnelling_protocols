@@ -125,6 +125,21 @@ option "ipv6-source-ip"              - "Source IPv6 address for scan packets"
     typestr="name"
     optional string
 
+section "Tunnelling Modules"
+option "spoofing-address-v4"            - "Spoofing IPv4 address for spoofing probe modules"
+    typestr="name"
+    optional string
+option "spoofing-address-v6"            - "Spoofing IPv6 address for spoofing probe modules"
+    typestr="name"
+    optional string
+option "external-ipv4-address"         - "Used for probe modules where the packet needs to be forwarded to the global ip address"
+    typestr="name"
+    optional string
+option "external-ipv6-address"         - "Used for probe modules where the packet needs to be forwarded to the global ipv6 address"
+    typestr="name"
+    optional string
+
+
 section "Results Output"
 option "output-fields"          f "Fields that should be output in result set"
     typestr="fields"

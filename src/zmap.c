@@ -603,6 +603,11 @@ int main(int argc, char *argv[])
 	SET_IF_GIVEN(zconf.min_hitrate, min_hitrate);
 	SET_IF_GIVEN(zconf.ipv6_target_filename, ipv6_target_file);
 	SET_IF_GIVEN(zconf.ipv6_source_ip, ipv6_source_ip);
+	SET_IF_GIVEN(zconf.spoofing_address_v4, spoofing_address_v4);
+	SET_IF_GIVEN(zconf.spoofing_address_v6, spoofing_address_v6);
+	SET_IF_GIVEN(zconf.external_address_v4, external_ipv4_address);
+	SET_IF_GIVEN(zconf.external_address_v6, external_ipv6_address);
+
 
 	if (zconf.ipv6_target_filename && !zconf.ipv6_source_ip) {
 		log_fatal("ipv6", "No IPv6 source address specified");

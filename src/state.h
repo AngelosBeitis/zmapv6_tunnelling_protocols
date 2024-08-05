@@ -124,6 +124,10 @@ struct state_conf {
 	int max_sendto_failures;
 	float min_hitrate;
 	char *ipv6_source_ip;
+	char *spoofing_address_v4;
+	char *spoofing_address_v6;
+	char *external_address_v4;
+	char *external_address_v6;
 	char *ipv6_target_filename;
 	int data_link_size;
 	int default_mode;

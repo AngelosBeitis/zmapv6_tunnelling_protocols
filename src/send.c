@@ -62,6 +62,18 @@ static uint16_t num_src_ports;
 static int ipv6 = 0;
 static struct in6_addr ipv6_src;
 
+//Spoofing
+static int spoofing_v4 = 0;
+static int spoofing_v6 = 0;
+static struct in_addr spoofing_addr;
+static struct in6_addr spoofing_addr_v6;
+
+//external addresses
+static int is_external_v4_provided = 0;
+static int is_external_v6_provided = 0;
+static struct in_addr external_address_v4;
+static struct in6_addr external_address_v6;
+
 
 void sig_handler_increase_speed(UNUSED int signal)
 {
@@ -90,6 +102,55 @@ iterator_t *send_init(void)
 			log_fatal("send", "could not read valid IPv6 src address, inet_pton returned `%d'", ret);
 		}
 		ipv6_target_file_init(zconf.ipv6_target_filename);
+	}
+
+	//Spoofing Modules v4
+	if (zconf.spoofing_address_v4) {
+		spoofing_v4 = 1;
+		int ret = inet_pton(AF_INET, (char *)zconf.spoofing_address_v4,
+				    &spoofing_addr);
+		if (ret != 1) {
+			log_fatal(
+			    "send",
+			    "could not read valid IPv4 spoofing address, inet_pton returned `%d'",
+			    ret);
+		}
+	}
+	//Spoofing Module v6
+	if (zconf.spoofing_address_v6) {
+		spoofing_v6 = 1;
+		int ret = inet_pton(AF_INET6, (char *)zconf.spoofing_address_v6,
+				    &spoofing_addr_v6);
+		if (ret != 1) {
+			log_fatal(
+			    "send",
+			    "could not read valid IPv6 spoofing address, inet_pton returned `%d'",
+			    ret);
+		}
+	}
+	//External address v4
+	if (zconf.external_address_v4) {
+		is_external_v4_provided = 1;
+		int ret = inet_pton(AF_INET, (char *)zconf.external_address_v4,
+				    &external_address_v4);
+		if (ret != 1) {
+			log_fatal(
+			    "send",
+			    "could not read valid IPv4 external address, inet_pton returned `%d'",
+			    ret);
+		}
+	}
+	//External address v6
+	if (zconf.external_address_v6) {
+		is_external_v6_provided = 1;
+		int ret = inet_pton(AF_INET6, (char *)zconf.external_address_v6,
+				    &external_address_v6);
+		if (ret != 1) {
+			log_fatal(
+			    "send",
+			    "could not read valid IPv6 external address, inet_pton returned `%d'",
+			    ret);
+		}
 	}
 
 	// generate a new primitive root and starting position
@@ -295,10 +356,25 @@ int send_run(sock_t st, shard_t *s)
 	// Get the initial IP to scan.
 	uint32_t current_ip;
 	struct in6_addr ipv6_dst;
+	int ipv6_addresses_args = 0;
+	int ipv4_addresses_args = 0;
+
+	if (spoofing_v6) {
+		ipv6_addresses_args++;
+	}
+	if (spoofing_v4) {
+		ipv4_addresses_args++;
+	}
+	if (is_external_v4_provided) {
+		ipv4_addresses_args++;
+	}
+	if (is_external_v6_provided) {
+		ipv6_addresses_args++;
+	}
 
 	if (ipv6) {
 		ipv6_target_file_get_ipv6(&ipv6_dst);
-		probe_data = malloc(2*sizeof(struct in6_addr));
+		ipv6_addresses_args += 2;
 	} else {
 		current_ip = shard_get_cur_ip(s);
 
@@ -318,6 +394,9 @@ int send_run(sock_t st, shard_t *s)
 			}
 		}
 	}
+	probe_data = malloc(ipv6_addresses_args * sizeof(struct in6_addr) +
+                        ipv4_addresses_args * sizeof(struct in_addr));
+
 	int attempts = zconf.num_retries + 1;
 	uint32_t idx = 0;
 	while (1) {
@@ -403,14 +482,35 @@ int send_run(sock_t st, shard_t *s)
 				uint32_t src_ip = get_src_ip(current_ip, i);
 				uint32_t validation[VALIDATE_BYTES /
 						    sizeof(uint32_t)];
+				int argument_position = 0;
 				// IPv6
 				if (ipv6) {
-					((struct in6_addr *) probe_data)[0] = ipv6_src;
-					((struct in6_addr *) probe_data)[1] = ipv6_dst;
+					((struct in6_addr *) probe_data)[argument_position] = ipv6_src;
+					argument_position++;
+					((struct in6_addr *) probe_data)[argument_position] = ipv6_dst;
+					argument_position++;
 					validate_gen_ipv6(&ipv6_src, &ipv6_dst, (uint8_t *)validation);
 				} else {
 					validate_gen(src_ip, current_ip,
 						     (uint8_t *)validation);
+				}
+				if (spoofing_v6) {
+					((struct in6_addr *)
+					     probe_data)[argument_position] = spoofing_addr_v6;
+					argument_position++;
+				}
+				if (is_external_v6_provided) {
+					((struct in6_addr *)
+					     probe_data)[argument_position] = external_address_v6;
+					argument_position++;
+				}
+				if (spoofing_v4) {
+					size_t offset = ipv4_addresses_args * sizeof(struct in6_addr);
+					memcpy((unsigned char *)probe_data + offset, &spoofing_addr, sizeof(struct in_addr));
+				}
+				if (is_external_v4_provided) {
+					size_t offset = ipv6_addresses_args * sizeof(struct in6_addr) + (ipv4_addresses_args - 1) *sizeof(struct in_addr);
+					memcpy((unsigned char *)probe_data + offset, &external_address_v4, sizeof(struct in_addr));
 				}
 				uint8_t ttl = zconf.probe_ttl;
 				size_t length = 0;

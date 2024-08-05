@@ -64,14 +64,20 @@ void make_eth_header_ethertype(struct ether_header *ethh, macaddr_t *src, macadd
 void make_ip_header(struct ip *iph, uint8_t, uint16_t);
 void make_ip6_header(struct ip6_hdr *iph, uint8_t, uint16_t);
 void make_tcp_header(struct tcphdr *, port_h_t, uint16_t);
+char *four_to_six(ipaddr_n_t ipv4, struct in6_addr *ipv6_addr);
+char *four_to_six2(ipaddr_n_t ipv4, struct in6_addr *ipv6_addr);
 size_t set_mss_option(struct tcphdr *tcp_header);
 void make_icmp_header(struct icmp *);
-void make_icmp6_header(struct icmp6_hdr *);
+void make_gue_header(struct guehdr *, uint8_t , uint16_t );
+void make_icmp_header2(struct icmp *, uint8_t type);
+void make_icmp6_header(struct icmp6_hdr *, int type);
 void make_udp_header(struct udphdr *udp_header, port_h_t dest_port,
 		     uint16_t len);
 void fprintf_ip_header(FILE *fp, struct ip *iph);
 void fprintf_ipv6_header(FILE *fp, struct ip6_hdr *iph);
 void fprintf_eth_header(FILE *fp, struct ether_header *ethh);
+struct in6_addr alter_ipv6_subnet(struct in6_addr ipv6_addr,int octates);
+struct in6_addr alter_ipv6(struct in6_addr ipv6_addr);
 
 static inline unsigned short in_checksum(unsigned short *ip_pkt, int len)
 {
@@ -265,6 +271,7 @@ static inline struct ip *get_inner_ip_header(const struct icmp *icmp,
 
 // Note: caller must free return value
 char *make_ip_str(uint32_t ip);
+char *make_ip_str2(struct in_addr *ip);
 char *make_ipv6_str(struct in6_addr *ipv6);
 
 extern const char *icmp_unreach_strings[];

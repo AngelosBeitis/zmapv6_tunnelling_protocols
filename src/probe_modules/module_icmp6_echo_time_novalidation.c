@@ -66,7 +66,7 @@ static int icmp6_echotime_init_perthread(void* buf, macaddr_t *src,
     make_ip6_header(ip6_header, IPPROTO_ICMPV6, payload_len);
 
 	struct icmp6_hdr *icmp6_header = (struct icmp6_hdr*)(&ip6_header[1]);
-	make_icmp6_header(icmp6_header);
+	make_icmp6_header(icmp6_header,ICMP6_ECHO_REQUEST);
 
 	return EXIT_SUCCESS;
 }

@@ -13,6 +13,7 @@
 
 #include "../../lib/includes.h"
 #include "../../lib/xalloc.h"
+#include "gue.h"
 #include "packet.h"
 
 #include "../state.h"
@@ -130,19 +131,124 @@ void make_ip6_header(struct ip6_hdr *iph, uint8_t protocol, uint16_t len)
 	iph->ip6_ctlun.ip6_un1.ip6_un1_nxt = protocol; // next header
 	iph->ip6_ctlun.ip6_un1.ip6_un1_hlim = MAXTTL; // hop limit
 }
-void make_icmp6_header(struct icmp6_hdr *buf)
+struct in6_addr alter_ipv6_subnet(struct in6_addr ipv6_addr, int octates)
 {
-    buf->icmp6_type = ICMP6_ECHO_REQUEST;
+	if (octates >= 8) {
+		exit(1);
+	}
+	srand(time(NULL));
+	uint16_t random_subnet[octates];
+	for (int i = 0; i < octates; i++) {
+		random_subnet[i] = (uint16_t)(rand() & 0xFFFF);
+	}
+	int j = 7;
+	for (int i = 0; i < octates; i++) {
+		ipv6_addr.__in6_u.__u6_addr16[j] = htons(random_subnet[i]);
+		j--;
+	}
+
+	return ipv6_addr;
+}
+
+struct in6_addr alter_ipv6(struct in6_addr ipv6_addr)
+{
+	srand(time(NULL));
+	uint16_t random_address[8];
+	for (int i = 0; i < 8; i++) {
+		random_address[i] = (uint16_t)(rand() & 0xFFFF);
+	}
+
+	for (int i = 0; i < 8; i++) {
+		ipv6_addr.__in6_u.__u6_addr16[i] = htons(random_address[i]);
+	}
+
+	return ipv6_addr;
+}
+
+void make_ip6_header_ttl(struct ip6_hdr *iph, uint8_t protocol, uint16_t len,
+			 uint8_t ttl)
+{
+	iph->ip6_ctlun.ip6_un2_vfc = 0x60; // 4 bits version, top 4 bits class
+	iph->ip6_ctlun.ip6_un1.ip6_un1_plen = htons(len); // payload length
+	iph->ip6_ctlun.ip6_un1.ip6_un1_nxt = protocol;	  // next header
+	iph->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;	  // hop limit
+}
+void make_icmp6_header(struct icmp6_hdr *buf,int type)
+{
+    buf->icmp6_type = type;
     buf->icmp6_code = 0;
     buf->icmp6_cksum = 0;
     // buf->icmp_seq = 0;
     // TODO: Set ICMP ECHO REQ specific fields
+}
+char *four_to_six(ipaddr_n_t ipv4, struct in6_addr *ipv6_addr)
+{
+
+	uint8_t octet4 = (ipv4 >> 24) & 0xFF;
+	uint8_t octet3 = (ipv4 >> 16) & 0xFF;
+	uint8_t octet2 = (ipv4 >> 8) & 0xFF;
+	uint8_t octet1 = ipv4 & 0xFF;
+
+	uint8_t octate1_1 = (octet1 >> 4) & 0x0F;
+	uint8_t octate1_2 = octet1 & 0x0F;
+
+	uint8_t octate2_1 = (octet2 >> 4) & 0x0F;
+	uint8_t octate2_2 = octet2 & 0x0F;
+
+	uint8_t octate3_1 = (octet3 >> 4) & 0x0F;
+	uint8_t octate3_2 = octet3 & 0x0F;
+
+	uint8_t octate4_1 = (octet4 >> 4) & 0x0F;
+	uint8_t octate4_2 = octet4 & 0x0F;
+
+	char ipv6_str[40];
+
+	sprintf(ipv6_str, "::ffff:%x%x%x%x:%x%x%x%x", octate1_1, octate1_2,
+		octate2_1, octate2_2, octate3_1, octate3_2, octate4_1,
+		octate4_2);
+	inet_pton(AF_INET6, ipv6_str, ipv6_addr);
+	return ipv6_str;
+}
+
+char *four_to_six2(ipaddr_n_t ipv4, struct in6_addr *ipv6_addr){
+	uint8_t octet4 = (ipv4 >> 24) & 0xFF;
+	uint8_t octet3 = (ipv4 >> 16) & 0xFF;
+	uint8_t octet2 = (ipv4 >> 8) & 0xFF;
+	uint8_t octet1 = ipv4 & 0xFF;
+
+	uint8_t octate1_1 = (octet1 >> 4) & 0x0F;
+	uint8_t octate1_2 = octet1 & 0x0F;
+
+	uint8_t octate2_1 = (octet2 >> 4) & 0x0F;
+	uint8_t octate2_2 = octet2 & 0x0F;
+
+	uint8_t octate3_1 = (octet3 >> 4) & 0x0F;
+	uint8_t octate3_2 = octet3 & 0x0F;
+
+	uint8_t octate4_1 = (octet4 >> 4) & 0x0F;
+	uint8_t octate4_2 = octet4 & 0x0F;
+
+	char ipv6_str[40];
+
+	sprintf(ipv6_str, "2002:%x%x%x%x:%x%x%x%x::", octate1_1, octate1_2,
+		octate2_1, octate2_2, octate3_1, octate3_2, octate4_1,
+		octate4_2);
+	inet_pton(AF_INET6, ipv6_str, ipv6_addr);
+	return ipv6_str;
 }
 
 void make_icmp_header(struct icmp *buf)
 {
 	memset(buf, 0, sizeof(struct icmp));
 	buf->icmp_type = ICMP_ECHO;
+	buf->icmp_code = 0;
+	buf->icmp_seq = 0;
+}
+
+void make_icmp_header2(struct icmp *buf, uint8_t type)
+{
+	memset(buf, 0, sizeof(struct icmp));
+	buf->icmp_type = type;
 	buf->icmp_code = 0;
 	buf->icmp_seq = 0;
 }
@@ -187,6 +293,14 @@ void make_udp_header(struct udphdr *udp_header, port_h_t dest_port,
 	udp_header->uh_ulen = htons(len);
 	// checksum ignored in IPv4 if 0
 	udp_header->uh_sum = 0;
+}
+
+void make_gue_header(struct guehdr *gue_header, uint8_t protocol, uint16_t len)
+{
+	gue_header->hlen = len;
+	gue_header->proto_ctype = protocol;
+	gue_header->flags = 0;
+	gue_header->control = 0;
 }
 
 int icmp_helper_validate(const struct ip *ip_hdr, uint32_t len,
@@ -285,6 +399,13 @@ char *make_ip_str(uint32_t ip)
 	const char *temp = inet_ntoa(t);
 	char *retv = xmalloc(strlen(temp) + 1);
 	strcpy(retv, temp);
+	return retv;
+}
+
+char *make_ip_str2(struct in_addr *ip)
+{
+	char *retv = xmalloc(INET_ADDRSTRLEN + 1);
+	inet_ntop(AF_INET, ip, retv, INET_ADDRSTRLEN);
 	return retv;
 }
 
