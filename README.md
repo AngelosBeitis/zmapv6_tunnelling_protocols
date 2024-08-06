@@ -106,7 +106,7 @@ zmap -M gue -p 6080 --output-module="csv" -o "output.csv" --external-ipv4-addres
 * 6in4 Standard Scan: `6in4` (Section 3.2.1)
 ```bash
 #Standard scan (inner IPv6 packet has the spoofing-address-v6 as source and the external-ipv6-address as destination)
-sudo zmap -M 6in4 --external-ipv6-address $IPV6_ADDR --spoofing-address-v6 $IPV6_ADDR -o output.csv -f actual_src,saddr
+sudo zmap -M 6in4 --external-ipv6-address $IPV6_ADDR --spoofing-address-v6 $IPV6_ADDR -o output.csv -f actual_src
 ```
 * 6in4 6to4 & Mapped Scans: `6in4_6to4` and `6in4_mapped` (Section 3.2.2)
 ```bash
