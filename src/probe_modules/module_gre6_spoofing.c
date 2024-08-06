@@ -161,6 +161,14 @@ static int gre6_spoofing_validate_packet(const struct ip *ip_hdr, uint32_t len,
 {
 	struct ip6_hdr *ip6_hdr = (struct ip6_hdr *)ip_hdr;
 
+	char address[INET6_ADDRSTRLEN];
+	inet_ntop(AF_INET6, &(ip6_hdr->ip6_src), address, INET6_ADDRSTRLEN);
+
+	if (strcmp(address,zconf.spoofing_address_v6) != 0)
+	{
+		return PACKET_INVALID;
+	}
+	
 	if (ip6_hdr->ip6_nxt != IPPROTO_ICMPV6) {
 		return PACKET_INVALID;
 	}
@@ -168,9 +176,6 @@ static int gre6_spoofing_validate_packet(const struct ip *ip_hdr, uint32_t len,
 	// offset iphdr by ip header length of 40 bytes to shift pointer to ICMP6 header
 	struct icmp6_hdr *icmp6_h = (struct icmp6_hdr *)(&ip6_hdr[1]);
 
-	if (icmp6_h->icmp6_seq != 10) {
-		return PACKET_INVALID;
-	}
 	if (icmp6_h->icmp6_type != ICMP6_ECHO_REPLY) {
 		return PACKET_INVALID;
 	}

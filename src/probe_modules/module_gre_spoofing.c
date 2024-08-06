@@ -140,6 +140,14 @@ static int gre_spoofing_validate_packet(const struct ip *ip_hdr, uint32_t len,
 					 uint32_t *src_ip,
 					 uint32_t *validation)
 {
+	char address[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &(ip_hdr->ip_src.s_addr), address, INET_ADDRSTRLEN);
+
+	if (strcmp(address,zconf.spoofing_address_v4) != 0)
+	{
+		return PACKET_INVALID;
+	}
+	
 	if (ip_hdr->ip_p != IPPROTO_ICMP) {
 		return PACKET_INVALID;
 	}

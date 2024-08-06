@@ -147,6 +147,14 @@ static int ip6ip6_spoofing_validate_packet(const struct ip *ip_hdr,
 {
 	struct ip6_hdr *ip6_hdr = (struct ip6_hdr *)ip_hdr;
 
+	char address[INET6_ADDRSTRLEN];
+	inet_ntop(AF_INET6, &(ip6_hdr->ip6_src), address, INET6_ADDRSTRLEN);
+
+	if (strcmp(address,zconf.spoofing_address_v6) != 0)
+	{
+		return PACKET_INVALID;
+	}
+
 	if (ip6_hdr->ip6_nxt != IPPROTO_ICMPV6) {
 		return PACKET_INVALID;
 	}
