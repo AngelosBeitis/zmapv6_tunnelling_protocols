@@ -137,7 +137,7 @@ static int ipip_spoofing_validate_packet(const struct ip *ip_hdr, uint32_t len,
 	{
 		return PACKET_INVALID;
 	}
-	
+
 	if (ip_hdr->ip_p != IPPROTO_ICMP) {
 		return PACKET_INVALID;
 	}
@@ -147,12 +147,6 @@ static int ipip_spoofing_validate_packet(const struct ip *ip_hdr, uint32_t len,
 	if (icmp_h->icmp_type != ICMP_ECHOREPLY) {
 		return PACKET_INVALID;
 	}
-
-	if (icmp_h->icmp_seq != (validation[2] & 0xFFFF))
-	{
-		return PACKET_INVALID;
-	}
-	
 
 	return PACKET_VALID;
 }
