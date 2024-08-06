@@ -39,6 +39,34 @@ extern probe_module_t module_ipv6_quic_initial;
 
 // ADD YOUR MODULE HERE
 extern probe_module_t module_icmp6_echo_time_novalidation;
+extern probe_module_t module_gre;
+extern probe_module_t module_gre_spoofing;
+extern probe_module_t module_gre_ttl;
+extern probe_module_t module_gue;
+extern probe_module_t module_ipip;
+extern probe_module_t module_ipip_echo;
+extern probe_module_t module_ipip_ttl;
+extern probe_module_t module_ipip_subnet;
+extern probe_module_t module_ipip_spoofing;
+extern probe_module_t module_gre_echo;
+extern probe_module_t module_bacnet;
+extern probe_module_t module_gre_subnet;
+extern probe_module_t module_6in4;
+extern probe_module_t module_6in4_ttl;
+extern probe_module_t module_4in6_spoofing;
+extern probe_module_t module_4in6_ttl;
+extern probe_module_t module_ip6ip6;
+extern probe_module_t module_ip6ip6_echo;
+extern probe_module_t module_ip6ip6_subnet;
+extern probe_module_t module_ip6ip6_spoofing;
+extern probe_module_t module_ip6ip6_hlim;
+extern probe_module_t module_gre6;
+extern probe_module_t module_gre6_icmp;
+extern probe_module_t module_gre6_spoofing;
+extern probe_module_t module_gre6_subnet;
+extern probe_module_t module_gre6_hlim;
+extern probe_module_t module_6in4_6to4;
+extern probe_module_t module_6in4_mapped;
 
 probe_module_t* probe_modules[] = {
 	&module_tcp_synscan, &module_tcp_synackscan, &module_icmp_echo,
@@ -53,7 +81,34 @@ probe_module_t* probe_modules[] = {
 	&module_quic_initial,
 	&module_ipv6_quic_initial,
 	// ADD YOUR MODULE HERE
-	&module_icmp6_echo_time_novalidation
+	&module_icmp6_echo_time_novalidation,
+	&module_gre,
+	&module_gre_spoofing,
+    &module_gue,
+    &module_ipip_echo,
+    &module_gre_echo,
+    &module_ipip,
+    &module_ipip_subnet,
+	&module_ipip_spoofing,
+    &module_gre_subnet,
+	&module_6in4,
+	&module_6in4_ttl,
+	&module_4in6_spoofing,
+	&module_4in6_ttl,
+	&module_ip6ip6,
+	&module_ip6ip6_echo,
+	&module_ip6ip6_subnet,
+	&module_ip6ip6_spoofing,
+	&module_gre6,
+	&module_gre6_icmp,
+	&module_gre6_spoofing,
+	&module_gre6_hlim,
+	&module_gre6_subnet,
+	&module_6in4_6to4,
+	&module_6in4_mapped,
+	&module_ipip_ttl,
+	&module_ip6ip6_hlim,
+	&module_gre_ttl
 };
 
 probe_module_t *get_probe_module_by_name(const char *name)
