@@ -505,7 +505,7 @@ int send_run(sock_t st, shard_t *s)
 					argument_position++;
 				}
 				if (spoofing_v4) {
-					size_t offset = ipv4_addresses_args * sizeof(struct in6_addr);
+					size_t offset = ipv6_addresses_args * sizeof(struct in6_addr);
 					memcpy((unsigned char *)probe_data + offset, &spoofing_addr, sizeof(struct in_addr));
 				}
 				if (is_external_v4_provided) {
