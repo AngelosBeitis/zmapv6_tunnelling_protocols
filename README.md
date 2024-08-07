@@ -172,7 +172,7 @@ sudo zmap -M ip6ip6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_add
 * 4in6 Spoofing: `4in6_spoofing`
 ```bash
 #Spoofing scan (the inner source address is a spoofing-address-v4 and the destination is the external-ipv4-address )
-sudo zmap -M 4in6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR
+sudo zmap -M 4in6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR -f actual_src
 ```
 * 4in6 TTL Expired: `4in6_ttl`
 ```bash
