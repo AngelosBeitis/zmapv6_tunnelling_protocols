@@ -53,43 +53,43 @@ IPIP
 * IPIP Standard Scan: `ipip`,`ipip_subnet`, and `ipip_spoofing` (Section 3.2.1)
 ```bash
 #Standard scan (inner packet has the target as source and the external-ipv4-address as destination)
-zmap -M ipip --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR 
+zmap -M ipip --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR 
 # Subnet spoofing scan (inner packet has a source IP address with the subnet of the host being scanned)
-zmap -M ipip_subnet --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR -f actual_src
+zmap -M ipip_subnet --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR -f actual_src
 # Spoofing scan (inner packet has the given spoofing-address-v4 as the source IP address)
-zmap -M ipip_spoofing --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $SPOOFED_ADDR -f actual_src
+zmap -M ipip_spoofing --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $SPOOFED_ADDR -f actual_src
 ```
 * IPIP ICMP Echo/Reply scan: `ipip_echo` (Section 3.2.2)
 ```bash
 # ICMP Echo/Reply scan (ping reply has a source IP address equal to the host being scanned)
-zmap -M ipip_echo --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR
+zmap -M ipip_echo --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR
 ```
 * IPIP TTL Expired scan: `ipip_ttl` (Section 3.2.3)
 ```bash
 #TTL Expired Scan (inner packet has the external-ipv4-address as source and a random spoofing-address-v4 as destination.The ttl of the inner packet is set to 1)
-zmap -M ipip_ttl --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $RANDOM_IPV4
+zmap -M ipip_ttl --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $RANDOM_IPV4
 ```
 GRE
 -----------------------
 
 * GRE Standard Scan: `gre`,`gre_subnet` and `gre_spoofing` (Section 3.2.1)
 ```bash
-zmap -M gre --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR 
+zmap -M gre --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR 
 # Subnet spoofing scan (inner packet has a source IP address with the subnet of the host being scanned)
-zmap -M gre_subnet --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR -f actual_src
+zmap -M gre_subnet --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR -f actual_src
 # Spoofing scan (inner packet has the given spoofing-address-v4 as the source IP address)
-zmap -M gre_spoofing --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $SPOOFED_ADDR -f actual_src
+zmap -M gre_spoofing --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $SPOOFED_ADDR -f actual_src
 
 ```
 * GRE ICMP Echo/Reply Scan: `gre_echo` (Section 3.2.2)
 ```bash
 # ICMP Echo/Reply scan (ping reply has a source IP address equal to the host being scanned)
-zmap -M gre_echo --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR
+zmap -M gre_echo --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR
 ```
 * GRE TTL Expired scan: `gre_ttl` (Section 3.2.3)
 ```bash
 #TTL Expired Scan (inner packet has the external-ipv4-address as source and a random spoofing-address-v4 as destination.The ttl of the inner packet is set to 1)
-zmap -M gre_ttl --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $RANDOM_IPV4
+zmap -M gre_ttl --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR --spoofing-address-v4 $RANDOM_IPV4
 ```
 GUE
 -----------------------
@@ -97,7 +97,7 @@ GUE
 * GUE Standard Scan: `gue` (Section 3.2.1)
 ```bash
 #Standard scan (inner packet has the target as source and the external-ipv4-address as destination)
-zmap -M gue -p 6080 --output-module="csv" -o "output.csv" --external-ipv4-address $IPV4_ADDR 
+zmap -M gue -p 6080 --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR 
 ```
 
 6in4
@@ -106,20 +106,20 @@ zmap -M gue -p 6080 --output-module="csv" -o "output.csv" --external-ipv4-addres
 * 6in4 Standard Scan: `6in4` (Section 3.2.1)
 ```bash
 #Standard scan (inner IPv6 packet has the spoofing-address-v6 as source and the external-ipv6-address as destination)
-sudo zmap -M 6in4 --external-ipv6-address $IPV6_ADDR --spoofing-address-v6 $IPV6_ADDR -o output.csv -f actual_src
+zmap -M 6in4 --external-ipv6-address $IPV6_ADDR --spoofing-address-v6 $IPV6_ADDR -o output.csv -f actual_src
 ```
 * 6in4 6to4 & Mapped Scans: `6in4_6to4` and `6in4_mapped` (Section 3.2.2)
 ```bash
 #6to4 scan (inner IPv6 packet has the target's 6to4 address as source and the external-ipv6-address as destination)
-sudo zmap -M 6in4_6to4 --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
+zmap -M 6in4_6to4 --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
 #Mapped scan (inner IPv6 packet has the target's mapped address as source and the external-ipv6-address as destination)
-sudo zmap -M 6in4_mapped --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
+zmap -M 6in4_mapped --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
 
 ```
 * 6in4 TTL Expired scan: `6in4_ttl` (Section 3.2.3)
 ```bash
 #TTL Expired Scan (inner IPv6 packet has the external-ipv6-address as source and the target's 6to address as destination.The ttl of the inner packet is set to 1)
-sudo zmap -M 6in4_ttl --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
+zmap -M 6in4_ttl --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
 ```
 GRE6
 -----------------------
@@ -127,21 +127,21 @@ GRE6
 * GRE6 Standard scan: `gre6`,`gre6_subnet` and `gre6_spoofing` (Section 3.2.1)
 ```bash
 #Standard scan (inner IPv6 packet has the ipv6-target-file as source and the ipv6-source-ip as destination)
-sudo zmap -M gre6 --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt
+zmap -M gre6 --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv
 # Subnet spoofing scan (inner IPv6 packet has a source IP address with the subnet of the host being scanned)
-sudo zmap -M gre6_subnet --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -f saddr
+zmap -M gre6_subnet --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv -f saddr 
 # Spoofing scan (inner IPv6 packet has the given spoofing-address-v6 as the source IP address)
-sudo zmap -M gre6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -f saddr
+zmap -M gre6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv -f saddr
 ```
 * GRE6 ICMPv6 Echo/Reply scan: `gre6_icmp` (Section 3.2.2)
 ```bash
 # ICMPv6 Echo/Reply scan (ping reply has a source IP address equal to the host being scanned)
-sudo zmap -M gre6_icmp --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR
+zmap -M gre6_icmp --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv
 ```
 * GRE6 HLIM Expired scan: `gre6_hlim` (Section 3.2.3)
 ```bash
 #HLIM Expired Scan (inner IPv6 packet has the ipv6-source-ip as source and a random spoofing-address-v6 address as destination. The hlim of the inner packet is set to 0)
-sudo zmap -M gre6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR
+zmap -M gre6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv
 ```
 
 IP6IP6
@@ -149,21 +149,21 @@ IP6IP6
 
 * IP6IP6 Standard scan: `ip6ip6`,`ip6ip6_subnet` and `ip6ip6_spoofing` (Section 3.2.1)
 ```bash
-sudo zmap -M ip6ip6 --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt
+zmap -M ip6ip6 --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv
 # Subnet spoofing scan (inner IPv6 packet has a source IP address with the subnet of the host being scanned)
-sudo zmap -M ip6ip6_subnet --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -f saddr
+zmap -M ip6ip6_subnet --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv -f saddr
 # Spoofing scan (inner IPv6 packet has the given spoofing-address-v6 as the source IP address)
-sudo zmap -M ip6ip6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -f saddr
+zmap -M ip6ip6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv -f saddr
 ```
-* IP6IP6 ICMPv6 Echo/Reply scan: `ip6ip6_icmp` (Section 3.2.2)
+* IP6IP6 ICMPv6 Echo/Reply scan: `ip6ip6_echo` (Section 3.2.2)
 ```bash
 # ICMPv6 Echo/Reply scan (ping reply has a source IP address equal to the host being scanned)
-sudo zmap -M ip6ip6_icmp --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR
+zmap -M ip6ip6_echo --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv
 ```
 * IP6IP6 HLIM Expired scan: `ip6ip6_hlim` (Section 3.2.3)
 ```bash
 #HLIM Expired Scan (inner IPv6 packet has the ipv6-source-ip as source and a random spoofing-address-v6 address as destination. The hlim of the inner packet is set to 0)
-sudo zmap -M ip6ip6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR
+zmap -M ip6ip6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv
 ```
 
 4in6
@@ -172,12 +172,12 @@ sudo zmap -M ip6ip6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_add
 * 4in6 Spoofing: `4in6_spoofing`
 ```bash
 #Spoofing scan (the inner source address is a spoofing-address-v4 and the destination is the external-ipv4-address )
-sudo zmap -M 4in6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR -f actual_src
+zmap -M 4in6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f actual_src
 ```
 * 4in6 TTL Expired: `4in6_ttl`
 ```bash
 #TTL Expired scan (the inner source address is the external-ipv4-address and the destination is the spoofing-address-v4. The ttl of the inner packet is set to 1 )
-sudo zmap -M 4in6_ttl --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR
+zmap -M 4in6_ttl --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f saddr,tunnel_addr
 ```
 License and Copyright
 ---------------------
