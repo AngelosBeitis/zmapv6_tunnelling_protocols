@@ -178,7 +178,7 @@ static void ip6ip6_subnet_process_packet(const u_char *packet,
 	fs_add_uint64(fs, "icmp-id", ntohs(icmp6_hdr->icmp6_id));
 	fs_add_uint64(fs, "seq", ntohs(icmp6_hdr->icmp6_seq));
 	fs_add_string(fs, "outersaddr", make_ipv6_str(&(ip6_hdr->ip6_src)), 1);
-	fs_modify_string(fs, "saddr", payload, 1);
+	fs_modify_string(fs, "saddr", payload, 0);
 	if (icmp6_hdr->icmp6_type == ICMP6_ECHO_REPLY) {
 		fs_add_string(fs, "classification", (char *)"echoreply", 0);
 		fs_add_uint64(fs, "success", 1);
