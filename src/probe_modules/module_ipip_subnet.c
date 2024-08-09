@@ -159,8 +159,17 @@ static int ipip_subnet_validate_packet(const struct ip *ip_hdr, uint32_t len,
 		return PACKET_INVALID;
 	}
 
-	if (icmp_h->icmp_seq != (validation[2] & 0xFFFF))
-	{
+	char *payload =
+	    (char *)&icmp_h[1];
+
+	struct in_addr subnet_addr;
+
+	inet_pton(AF_INET, (char *)payload,
+				    &subnet_addr);
+	validate_gen(ip_hdr->ip_dst.s_addr,subnet_addr.s_addr,
+			     (uint8_t *)validation);
+
+	if (icmp_h->icmp_id != (validation[1] & 0xFFFF)) {
 		return PACKET_INVALID;
 	}
 	

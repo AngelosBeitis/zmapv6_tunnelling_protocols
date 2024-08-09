@@ -81,6 +81,7 @@ void handle_packet(uint32_t buflen, const u_char *bytes,
 	// IPv6
 	int is_repeat;
     if (ipv6 ||
+			strcmp(zconf.probe_module->name,"6in4") == 0 ||
         	strcmp(zconf.probe_module->name,"gre_spoofing") == 0 ||
             strcmp(zconf.probe_module->name,"ipip_spoofing") == 0 ||
             strcmp(zconf.probe_module->name,"ipip_subnet") == 0 ||

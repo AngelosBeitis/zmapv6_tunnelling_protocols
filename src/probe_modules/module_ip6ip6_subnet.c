@@ -87,7 +87,8 @@ static int ip6ip6_subnet_make_packet(void *buf, size_t *buf_len,
 	struct icmp6_hdr *icmp6_header = (struct icmp6_hdr *)(&ip6_header2[1]);
 	char *payload = (char *)(&icmp6_header[1]);
 
-	uint16_t icmp_idnum = validation[2] & 0xFFFF;
+	uint16_t icmp_idnum = validation[1] & 0xFFFF;
+	uint16_t icmp_seqnum = validation[2] & 0xFFFF;
 
 	// Include validation in ICMPv6 payload data
 	icmp6_header->icmp6_data32[1] = validation[0];
@@ -106,7 +107,7 @@ static int ip6ip6_subnet_make_packet(void *buf, size_t *buf_len,
 
 	icmp6_header->icmp6_id = icmp_idnum;
 	icmp6_header->icmp6_cksum = 0;
-	icmp6_header->icmp6_seq = icmp_idnum;
+	icmp6_header->icmp6_seq = icmp_seqnum;
 
 	inet_ntop(AF_INET6, &ip6_header->ip6_dst, payload, INET6_ADDRSTRLEN);
 
@@ -153,11 +154,20 @@ static int ip6ip6_subnet_validate_packet(const struct ip *ip_hdr, uint32_t len,
 
 	// offset iphdr by ip header length of 40 bytes to shift pointer to ICMP6 header
 	struct icmp6_hdr *icmp6_h = (struct icmp6_hdr *)(&ip6_hdr[1]);
-
-	if (icmp6_h->icmp6_seq != (validation[2] & 0xFFFF)) {
+	if (icmp6_h->icmp6_type != ICMP6_ECHO_REPLY) {
 		return PACKET_INVALID;
 	}
-	if (icmp6_h->icmp6_type != ICMP6_ECHO_REPLY) {
+	char *payload =
+	    (char *)&icmp6_h[1];
+
+	struct in6_addr subnet_addr;
+
+	inet_pton(AF_INET6, (char *)payload,
+				    &subnet_addr);
+	validate_gen_ipv6(&ip6_hdr->ip6_dst,&subnet_addr,
+			     (uint8_t *)validation);
+
+	if (icmp6_h->icmp6_id != (validation[1] & 0xFFFF)) {
 		return PACKET_INVALID;
 	}
 	return PACKET_VALID;
