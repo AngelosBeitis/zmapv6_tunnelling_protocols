@@ -154,7 +154,7 @@ static int ip6ip6_subnet_validate_packet(const struct ip *ip_hdr, uint32_t len,
 	// offset iphdr by ip header length of 40 bytes to shift pointer to ICMP6 header
 	struct icmp6_hdr *icmp6_h = (struct icmp6_hdr *)(&ip6_hdr[1]);
 
-	if (icmp6_h->icmp6_seq != validation[2] & 0xFFFF) {
+	if (icmp6_h->icmp6_seq != (validation[2] & 0xFFFF)) {
 		return PACKET_INVALID;
 	}
 	if (icmp6_h->icmp6_type != ICMP6_ECHO_REPLY) {

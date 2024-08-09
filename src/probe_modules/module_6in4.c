@@ -34,6 +34,10 @@ probe_module_t module_6in4;
 
 int sixIn4_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.external_address_v6 || !zconf.spoofing_address_v6){
+		log_error("6in4", "External IPv6 address and/or spoofing address were not given. Add --external-ipv6-address and --spoofing-address-v6");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 

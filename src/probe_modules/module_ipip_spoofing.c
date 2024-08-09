@@ -34,6 +34,10 @@ probe_module_t module_ipip_spoofing;
 
 int ipip_spoofing_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.spoofing_address_v4){
+		log_error("ipip_spoofing", "Spoofing IPv4 address was not given. Add --spoofing-address-v4");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 

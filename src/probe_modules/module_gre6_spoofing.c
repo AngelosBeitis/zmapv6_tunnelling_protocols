@@ -42,6 +42,10 @@ static gre_header_t gre_header_default;
 
 int gre6_spoofing_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.spoofing_address_v6){
+		log_error("gre6_spoofing", "Spoofing IPv6 address was not given. Add --spoofing-address-v6");
+		return EXIT_FAILURE;
+	}
 	// Only look at received packets destined to the specified scanning address (useful for parallel zmap scans)
 	memset(&gre_header_default, 0, sizeof(gre_header_default));
 	if (asprintf((char **restrict)&module_gre6_spoofing.pcap_filter,

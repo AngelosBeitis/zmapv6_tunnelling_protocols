@@ -41,6 +41,10 @@ static gre_header_t gre_header_default;
 
 int gre_spoofing_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.spoofing_address_v4){
+		log_error("gre_spoofing", "Spoofing IPv4 address was not given. Add --spoofing-address-v4");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 
