@@ -34,6 +34,10 @@ probe_module_t module_4in6_ttl;
 
 int fourIn6_ttl_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.spoofing_address_v4){
+		log_error("4in6_ttl", "Spoofing address was not given. Add --spoofing-address-v4");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 

@@ -88,6 +88,10 @@ int gue_make_packet(void *buf, size_t *buf_len, ipaddr_n_t src_ip,
 	ip_header2->ip_src.s_addr = dst_ip;
 	ip_header2->ip_dst = ((struct in_addr *)arg)[0]; //external IP
 
+	if (ip_header2->ip_dst.s_addr == INADDR_ANY)
+	{
+		ip_header2->ip_dst.s_addr = src_ip;
+	}
 
 	ip_header2->ip_sum = 0;
 	ip_header2->ip_sum = zmap_ip_checksum((unsigned short *)ip_header2);

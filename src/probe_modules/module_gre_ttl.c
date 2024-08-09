@@ -38,7 +38,14 @@ typedef struct __attribute__((packed)) {
 } gre_header_t;
 
 static gre_header_t gre_header_default;
-int gre_ttl_global_initialize(struct state_conf *conf) { return EXIT_SUCCESS; }
+int gre_ttl_global_initialize(struct state_conf *conf) 
+{
+	if(!zconf.spoofing_address_v4){
+		log_error("gre_ttl", "Spoofing IPv4 address was not given. Add --spoofing-address-v4");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS; 
+}
 
 static int gre_ttl_init_perthread(void *buf, macaddr_t *src, macaddr_t *gw,
 				   UNUSED port_h_t dst_port,

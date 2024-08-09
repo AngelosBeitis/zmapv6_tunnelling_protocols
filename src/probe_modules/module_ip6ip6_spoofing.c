@@ -34,12 +34,16 @@ probe_module_t module_ip6ip6_spoofing;
 
 int ip6ip6_spoofing_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.spoofing_address_v6){
+		log_error("ip6ip6_spoofing", "Spoofing IPv6 address was not given. Add --spoofing-address-v6");
+		return EXIT_FAILURE;
+	}
 	// Only look at received packets destined to the specified scanning address (useful for parallel zmap scans)
 	if (asprintf((char **restrict)&module_ip6ip6_spoofing.pcap_filter,
 		     "%s && ip6 dst host %s",
 		     module_ip6ip6_spoofing.pcap_filter,
 		     conf->ipv6_source_ip) == -1) {
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;

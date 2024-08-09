@@ -34,6 +34,10 @@ probe_module_t module_6in4_6to4;
 
 int sixIn4_6to4_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.external_address_v6){
+		log_error("6in4_6to4", "External IPv6 address was not given. Add --external-ipv6-address");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 

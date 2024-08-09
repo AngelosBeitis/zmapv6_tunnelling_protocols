@@ -41,6 +41,8 @@ For the more general development of tunnelling probe modules we introduce some a
 * `--spoofing-address-v4 $RANDOM_IPV4`: A chosen spoofed address. This argument allows for the identification of unfiltered networks.
 * `--spoofing-address-v6 $RANDOM_IPV6`: A chosen spoofed address. This argument allows for the identification of unfiltered networks.
 
+NOTE: For some modules such as spoofing,subnet, etc. you will notice a `-f` parameter. Use as instructed below for each module in order to store the source address of the vulnerable host.
+
 
 Tunnelling Protocol Modules
 -----------------------
@@ -106,14 +108,14 @@ zmap -M gue -p 6080 --output-module="csv" -o output.csv --external-ipv4-address 
 * 6in4 Standard Scan: `6in4` (Section 3.2.1)
 ```bash
 #Standard scan (inner IPv6 packet has the spoofing-address-v6 as source and the external-ipv6-address as destination)
-zmap -M 6in4 --external-ipv6-address $IPV6_ADDR --spoofing-address-v6 $IPV6_ADDR -o output.csv -f actual_src
+zmap -M 6in4 --external-ipv6-address $IPV6_ADDR --spoofing-address-v6 $SPOOFED_ADDR_V6 -o output.csv -f actual_src
 ```
 * 6in4 6to4 & Mapped Scans: `6in4_6to4` and `6in4_mapped` (Section 3.2.2)
 ```bash
 #6to4 scan (inner IPv6 packet has the target's 6to4 address as source and the external-ipv6-address as destination)
-zmap -M 6in4_6to4 --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
+zmap -M 6in4_6to4 --external-ipv6-address $IPV6_ADDR -o output.csv -f saddr
 #Mapped scan (inner IPv6 packet has the target's mapped address as source and the external-ipv6-address as destination)
-zmap -M 6in4_mapped --external-ipv6-address $IPV6_ADDR -o output.csv -f actual_src,saddr
+zmap -M 6in4_mapped --external-ipv6-address $IPV6_ADDR -o output.csv -f saddr
 
 ```
 * 6in4 TTL Expired scan: `6in4_ttl` (Section 3.2.3)
@@ -131,7 +133,7 @@ zmap -M gre6 --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -
 # Subnet spoofing scan (inner IPv6 packet has a source IP address with the subnet of the host being scanned)
 zmap -M gre6_subnet --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv -f saddr 
 # Spoofing scan (inner IPv6 packet has the given spoofing-address-v6 as the source IP address)
-zmap -M gre6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv -f saddr
+zmap -M gre6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $SPOOFED_ADDR_V6 -o output.csv -f saddr
 ```
 * GRE6 ICMPv6 Echo/Reply scan: `gre6_icmp` (Section 3.2.2)
 ```bash
@@ -141,7 +143,7 @@ zmap -M gre6_icmp --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.
 * GRE6 HLIM Expired scan: `gre6_hlim` (Section 3.2.3)
 ```bash
 #HLIM Expired Scan (inner IPv6 packet has the ipv6-source-ip as source and a random spoofing-address-v6 address as destination. The hlim of the inner packet is set to 0)
-zmap -M gre6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv
+zmap -M gre6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $RANDOM_ADDR_V6 -o output.csv
 ```
 
 IP6IP6
@@ -153,17 +155,17 @@ zmap -M ip6ip6 --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt
 # Subnet spoofing scan (inner IPv6 packet has a source IP address with the subnet of the host being scanned)
 zmap -M ip6ip6_subnet --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv -f saddr
 # Spoofing scan (inner IPv6 packet has the given spoofing-address-v6 as the source IP address)
-zmap -M ip6ip6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt -o output.csv -f saddr
+zmap -M ip6ip6_spoofing --ipv6-source-ip $IPV6_ADDR --spoofing-address-v6 $SPOOFED_ADDR_V6 --ipv6-target-file ipv6_addresses.txt -o output.csv -f saddr
 ```
 * IP6IP6 ICMPv6 Echo/Reply scan: `ip6ip6_echo` (Section 3.2.2)
 ```bash
 # ICMPv6 Echo/Reply scan (ping reply has a source IP address equal to the host being scanned)
-zmap -M ip6ip6_echo --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv
+zmap -M ip6ip6_echo --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $RANDOM_ADDR_V6 -o output.csv
 ```
 * IP6IP6 HLIM Expired scan: `ip6ip6_hlim` (Section 3.2.3)
 ```bash
 #HLIM Expired Scan (inner IPv6 packet has the ipv6-source-ip as source and a random spoofing-address-v6 address as destination. The hlim of the inner packet is set to 0)
-zmap -M ip6ip6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $IPV6_ADDR -o output.csv
+zmap -M ip6ip6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresses.txt --spoofing-address-v6 $RANDOM_ADDR_V6 -o output.csv
 ```
 
 4in6
@@ -172,12 +174,12 @@ zmap -M ip6ip6_hlim --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addresse
 * 4in6 Spoofing: `4in6_spoofing`
 ```bash
 #Spoofing scan (the inner source address is a spoofing-address-v4 and the destination is the external-ipv4-address )
-zmap -M 4in6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f actual_src
+zmap -M 4in6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $SPOOFED_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f actual_src
 ```
 * 4in6 TTL Expired: `4in6_ttl`
 ```bash
 #TTL Expired scan (the inner source address is the external-ipv4-address and the destination is the spoofing-address-v4. The ttl of the inner packet is set to 1 )
-zmap -M 4in6_ttl --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $IPV4_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f saddr,tunnel_addr
+zmap -M 4in6_ttl --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $RANDOM_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f saddr,tunnel_addr
 ```
 License and Copyright
 ---------------------

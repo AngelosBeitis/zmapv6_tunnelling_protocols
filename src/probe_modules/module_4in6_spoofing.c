@@ -34,6 +34,9 @@ probe_module_t module_4in6_spoofing;
 
 int fourIn6_spoofing_global_initialize(struct state_conf *conf)
 {
+	if(!zconf.spoofing_address_v4){
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 
