@@ -76,8 +76,9 @@ static int fourIn6_ttl_make_packet(void *buf, size_t *buf_len,
 	struct ip *ip_header = (struct ip *)(&ip6_header[1]);
 	struct icmp *icmp_header = (struct icmp *)(&ip_header[1]);
 
-	uint16_t icmp_idnum = validation[0] & 0xFFFF;
-	uint16_t icmp_seqnum = validation[1] & 0xFFFF;
+	uint32_t index = (uint32_t)zsend.current_host;
+	uint16_t icmp_idnum = (uint16_t)(index >> 16);
+	uint16_t icmp_seqnum = (uint16_t)(index & 0xFFFF);
 
 	// Include validation in ICMPv6 payload data
 

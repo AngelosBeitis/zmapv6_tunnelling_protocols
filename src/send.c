@@ -581,6 +581,7 @@ int send_run(sock_t st, shard_t *s)
 			}
 			// Track the number of hosts we actually scanned.
 			s->state.hosts_scanned++;
+			zsend.current_host++;
 
 			// IPv6
 			if (ipv6) {
