@@ -166,7 +166,8 @@ zmap -M 4in6_spoofing --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.t
 * 4in6 TTL Expired: `4in6_ttl`
 ```bash
 # TTL Expired scan (the inner source address is the external-ipv4-address and the destination is the spoofing-address-v4, with the TTL of the inner packet set to 1 )
-zmap -M 4in6_ttl --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $RANDOM_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f saddr,tunnel_addr
+# actual_src_index is the index line of the ipv6_addr.txt corresponding to the host
+zmap -M 4in6_ttl --ipv6-source-ip $IPV6_ADDR --ipv6-target-file ipv6_addr.txt --spoofing-address-v4 $RANDOM_ADDR --external-ipv4-address $IPV4_ADDR -o output.csv -f actual_src_index,tunnel_addr
 ```
 
 GUE

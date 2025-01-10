@@ -88,6 +88,7 @@ struct state_send zsend = {
     .sendto_failures = 0,
     .max_targets = 0,
     .list_of_ips_pbm = NULL,
+	.current_host = 1,
 };
 
 // global receiver stats and defaults
