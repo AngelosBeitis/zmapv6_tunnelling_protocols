@@ -85,7 +85,10 @@ void handle_packet(uint32_t buflen, const u_char *bytes,
         	strcmp(zconf.probe_module->name,"gre_spoofing") == 0 ||
             strcmp(zconf.probe_module->name,"ipip_spoofing") == 0 ||
             strcmp(zconf.probe_module->name,"ipip_subnet") == 0 ||
-            strcmp(zconf.probe_module->name,"gre_subnet") == 0) {
+            strcmp(zconf.probe_module->name,"gre_subnet") == 0 ||
+			strcmp(zconf.probe_module->name,"ipip_multicast") == 0 ||
+			strcmp(zconf.probe_module->name,"gre_multicast") == 0 ||
+			strcmp(zconf.probe_module->name,"6in4_multicast") == 0) {
 
 		is_repeat = 0;
 	} else {

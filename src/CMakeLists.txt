@@ -38,6 +38,9 @@ set(EXTRA_PROBE_MODULES
     probe_modules/module_gre6_hlim.c
     probe_modules/module_gre6_subnet.c
     probe_modules/module_ipip_ttl.c
+    probe_modules/module_ipip_multicast.c
+    probe_modules/module_gre_multicast.c
+    probe_modules/module_6in4_multicast.c
 )
 
 # ADD YOUR OUTPUT MODULE HERE

@@ -67,6 +67,11 @@ extern probe_module_t module_gre6_subnet;
 extern probe_module_t module_gre6_hlim;
 extern probe_module_t module_6in4_6to4;
 extern probe_module_t module_6in4_mapped;
+extern probe_module_t module_ipip_multicast;
+extern probe_module_t module_gre_multicast;
+extern probe_module_t module_6in4_multicast;
+
+
 
 probe_module_t* probe_modules[] = {
 	&module_tcp_synscan, &module_tcp_synackscan, &module_icmp_echo,
@@ -108,7 +113,10 @@ probe_module_t* probe_modules[] = {
 	&module_6in4_mapped,
 	&module_ipip_ttl,
 	&module_ip6ip6_hlim,
-	&module_gre_ttl
+	&module_gre_ttl,
+	&module_ipip_multicast,
+	&module_gre_multicast,
+	&module_6in4_multicast
 };
 
 probe_module_t *get_probe_module_by_name(const char *name)
