@@ -179,6 +179,57 @@ GUE
 zmap -M gue -p 6080 --output-module="csv" -o output.csv --external-ipv4-address $IPV4_ADDR
 ```
 
+Lost in Encapsulation: Exploiting Open Tunnelling Hosts and Attacking Private Networks
+-----------------------
+
+GRETAPv6 Multicast Scan
+-----------------------
+```bash
+zmap -M gretap6_multicast --output-module="csv" -o gretap6.csv --external-ipv6-address $IPV6_ADDR --spoofing-address-v6 ff02::1 -f saddr,actual_src
+```
+
+GRETAP
+-----------------------
+```bash
+zmap -M gre_broadcast --output-module="csv" -o gretap_broadcast.csv --external-ipv4-address $IPV4_ADDR -f saddr,actual_src
+```
+
+IPIP NAT
+-----------------------
+```bash
+zmap -M ipip_nat --output-module="csv" -o ipip_nat.csv --spoofing-address-v4 $PRIVATE_IP --external-ipv4-address $IPV4_ADDR -f saddr,actual_src
+```
+
+GRE NAT
+-----------------------
+```bash
+zmap -M gre_nat --output-module="csv" -o gre_nat.csv --spoofing-address-v4 $PRIVATE_IP --external-ipv4-address $IPV4_ADDR -f saddr,actual_src
+```
+
+IPIP Two-Way Proxy Scan
+-----------------------
+Make sure to execute the following on the first scanner (the server running the ZMap scan): ```sudo iptables -A INPUT -s $SCANNER2_IP -p icmp --icmp-type echo-request -j DROP```
+```bash
+# Results are collected at SERVER2
+zmap -M ipip_doubleproxy --output-module="csv" -o ipip_doubleproxy.csv --spoofing-address-v4 $SERVER_2 --external-ipv4-address $IPV4_ADDR
+```
+```bash
+# At Server 2
+sudo python3 double_proxy_listener.py
+```
+
+GRE Two-Way Proxy Scan
+-----------------------
+Make sure to run the following on the first scanner (the server running the ZMap scan): ```sudo iptables -A INPUT -s $SCANNER2_IP -p icmp --icmp-type echo-request -j DROP```
+```bash
+# Results are collected at SERVER2
+zmap -M gre_doubleproxy --output-module="csv" -o gre_doubleproxy.csv --spoofing-address-v4 $SERVER_2 --external-ipv4-address $IPV4_ADDR
+```
+```bash
+# At Server 2
+sudo python3 double_proxy_listener.py
+```
+
 License and Copyright
 ---------------------
 

@@ -68,8 +68,14 @@ extern probe_module_t module_gre6_hlim;
 extern probe_module_t module_6in4_6to4;
 extern probe_module_t module_6in4_mapped;
 extern probe_module_t module_ipip_multicast;
-extern probe_module_t module_gre_multicast;
+extern probe_module_t module_gre_broadcast;
 extern probe_module_t module_6in4_multicast;
+extern probe_module_t module_gre_doubleproxy;
+extern probe_module_t module_ipip_doubleproxy;
+extern probe_module_t module_gre_nat;
+extern probe_module_t module_ipip_nat;
+extern probe_module_t module_gretap6_multicast;
+
 
 
 
@@ -114,9 +120,12 @@ probe_module_t* probe_modules[] = {
 	&module_ipip_ttl,
 	&module_ip6ip6_hlim,
 	&module_gre_ttl,
-	&module_ipip_multicast,
-	&module_gre_multicast,
-	&module_6in4_multicast
+	&module_gre_broadcast,
+	&module_gre_doubleproxy,
+	&module_ipip_doubleproxy,
+	&module_gre_nat,
+	&module_ipip_nat,
+	&module_gretap6_multicast,
 };
 
 probe_module_t *get_probe_module_by_name(const char *name)
