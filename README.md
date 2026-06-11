@@ -208,7 +208,7 @@ zmap -M gre_nat --output-module="csv" -o gre_nat.csv --spoofing-address-v4 $PRIV
 
 IPIP Two-Way Proxy Scan
 -----------------------
-Make sure to execute the following on the first scanner (the server running the ZMap scan): ```sudo iptables -A INPUT -s $SCANNER2_IP -p icmp --icmp-type echo-request -j DROP```
+Make sure to execute the following on the first scanner (the server running the ZMap scan): ```sudo iptables -A OUTPUT -d $SCANNER2_IP -p icmp --icmp-type echo-reply -j DROP``
 ```bash
 # Results are collected at SERVER2
 zmap -M ipip_doubleproxy --output-module="csv" -o ipip_doubleproxy.csv --spoofing-address-v4 $SERVER_2 --external-ipv4-address $IPV4_ADDR
@@ -220,7 +220,7 @@ sudo python3 double_proxy_listener.py
 
 GRE Two-Way Proxy Scan
 -----------------------
-Make sure to run the following on the first scanner (the server running the ZMap scan): ```sudo iptables -A INPUT -s $SCANNER2_IP -p icmp --icmp-type echo-request -j DROP```
+Make sure to run the following on the first scanner (the server running the ZMap scan): ```sudo iptables -A OUTPUT -d $SCANNER2_IP -p icmp --icmp-type echo-reply -j DROP```
 ```bash
 # Results are collected at SERVER2
 zmap -M gre_doubleproxy --output-module="csv" -o gre_doubleproxy.csv --spoofing-address-v4 $SERVER_2 --external-ipv4-address $IPV4_ADDR
