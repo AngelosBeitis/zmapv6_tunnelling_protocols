@@ -80,9 +80,6 @@ static int ipip_nat_make_packet(void *buf, size_t *buf_len,
 	struct icmp *icmp_header = (struct icmp *)(&ip_header2[1]);
 	char *payload = (char *)(&icmp_header[1]);
 
-	uint16_t icmp_idnum = validation[1] & 0xFFFF;
-	uint16_t icmp_seqnum = validation[2] & 0xFFFF;
-
 	inet_ntop(AF_INET, &(dst_ip), payload, INET_ADDRSTRLEN);
 
 	ip_header->ip_src.s_addr = src_ip;
@@ -102,8 +99,11 @@ static int ipip_nat_make_packet(void *buf, size_t *buf_len,
 	ip_header2->ip_sum = 0;
 	ip_header2->ip_sum = zmap_ip_checksum((unsigned short *)ip_header2);
 
-	icmp_header->icmp_id = 10;
-	icmp_header->icmp_seq = 10;
+	// Setup for verification. Here we verify based on our own source since reply source might be different from probe destination
+	uint16_t icmp_idnum = (ip_header->ip_src.s_addr >> 16) & 0xFFFF;
+	uint16_t icmp_seqnum = ip_header->ip_src.s_addr & 0xFFFF;
+	icmp_header->icmp_id = icmp_idnum;
+	icmp_header->icmp_seq = icmp_seqnum;
 
 	icmp_header->icmp_cksum = 0;
 	icmp_header->icmp_cksum =
@@ -128,6 +128,17 @@ static void ipip_nat_print_packet(FILE *fp, void *packet)
 	fprintf(fp, "------------------------------------------------------\n");
 }
 
+static int ipip_nat_validate_id_seq(struct icmp *icmp_h, const struct ip *ip_hdr)
+{
+	if (icmp_h->icmp_id != (ip_hdr->ip_dst.s_addr >> 16) &
+	0xFFFF) {
+		return PACKET_INVALID;
+	}
+	if (icmp_h->icmp_seq != (ip_hdr->ip_dst.s_addr & 0xFFFF)) {
+		return PACKET_INVALID;
+	}
+	return PACKET_VALID;
+}
 static int ipip_nat_validate_packet(const struct ip *ip_hdr, uint32_t len,
 					 __attribute__((unused))
 					 uint32_t *src_ip,
@@ -144,7 +155,7 @@ static int ipip_nat_validate_packet(const struct ip *ip_hdr, uint32_t len,
 		return PACKET_INVALID;
 	}
 
-	return PACKET_VALID;
+	return ipip_nat_validate_id_seq(icmp_h,ip_hdr);
 }
 
 static void ipip_nat_process_packet(const u_char *packet,
